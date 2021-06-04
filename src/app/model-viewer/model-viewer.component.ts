@@ -7,16 +7,19 @@ import {
   OnChanges,
 } from '@angular/core';
 import * as THREE from 'three';
-import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader';
-import { MTLLoader } from 'three/examples/jsm/loaders/MTLLoader';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
-import { environment } from '../../environments/environment';
+import {OBJLoader} from 'three/examples/jsm/loaders/OBJLoader';
+import {MTLLoader} from 'three/examples/jsm/loaders/MTLLoader';
+import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls';
+import {environment} from '../../environments/environment';
+
 @Component({
   selector: 'app-model-viewer',
   templateUrl: './model-viewer.component.html',
   styleUrls: ['./model-viewer.component.scss'],
 })
 export class ModelViewerComponent implements AfterViewInit, OnChanges {
+  static models: Map<string, THREE.Group> = new Map<string, THREE.Group>();
+
   @ViewChild('container') container: ElementRef;
 
   @Input() ratio = 1;
@@ -31,11 +34,11 @@ export class ModelViewerComponent implements AfterViewInit, OnChanges {
   renderer: THREE.WebGLRenderer;
   controls: OrbitControls;
   model: THREE.Group;
-  models: Map<string, THREE.Group>;
   first = true;
   loading = true;
 
-  constructor(private el: ElementRef) {}
+  constructor(private el: ElementRef) {
+  }
 
   ngAfterViewInit(): void {
     this.loader = new OBJLoader();
@@ -65,7 +68,6 @@ export class ModelViewerComponent implements AfterViewInit, OnChanges {
     this.camera.lookAt(0, 0, 0);
     this.controls.update();
     this.scene.background = new THREE.Color(0xffffff);
-    this.models = new Map<string, THREE.Group>();
     const element: HTMLElement = this.renderer.domElement;
     element.classList.add('bordered');
     this.el.nativeElement.appendChild(element);
@@ -78,7 +80,7 @@ export class ModelViewerComponent implements AfterViewInit, OnChanges {
           (model) => {
             this.model = model;
             this.scene.add(this.model);
-            this.models.set(this.modelName, model);
+            ModelViewerComponent.models.set(this.modelName, model);
             this.animate();
             this.loading = false;
           }
@@ -91,7 +93,7 @@ export class ModelViewerComponent implements AfterViewInit, OnChanges {
           (model) => {
             this.model = model;
             this.scene.add(this.model);
-            this.models.set(this.modelName, model);
+            ModelViewerComponent.models.set(this.modelName, model);
             this.animate();
             this.loading = false;
           }
@@ -105,8 +107,8 @@ export class ModelViewerComponent implements AfterViewInit, OnChanges {
     if (!this.first) {
       this.loading = true;
       this.scene.remove(this.model);
-      if (this.models.has(this.modelName)) {
-        const model = this.models.get(this.modelName);
+      if (ModelViewerComponent.models.has(this.modelName)) {
+        const model = ModelViewerComponent.models.get(this.modelName);
         this.model = model;
         this.scene.add(model);
         this.animate();
@@ -121,7 +123,7 @@ export class ModelViewerComponent implements AfterViewInit, OnChanges {
               (model) => {
                 this.model = model;
                 this.scene.add(this.model);
-                this.models.set(this.modelName, model);
+                ModelViewerComponent.models.set(this.modelName, model);
                 this.animate();
                 this.loading = false;
               }
@@ -134,7 +136,7 @@ export class ModelViewerComponent implements AfterViewInit, OnChanges {
               (model) => {
                 this.model = model;
                 this.scene.add(this.model);
-                this.models.set(this.modelName, model);
+                ModelViewerComponent.models.set(this.modelName, model);
                 this.animate();
                 this.loading = false;
               }
